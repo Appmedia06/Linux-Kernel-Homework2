@@ -4,10 +4,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+
+
 typedef struct __node {
-    struct __node *left, *right;
+    // struct __node *left, *right;
     struct __node *next;
-    long value;
+    int value;
 } node_t;
 
 void list_add(node_t **list, node_t *node_t)
@@ -85,6 +87,105 @@ void shuffle(int *array, size_t n)
     }
 }
 
+void swap_node(node_t *a, node_t *b)
+{
+    node_t *tmp;
+    tmp = a->next;
+    a->next = b->next;
+    b->next = tmp;
+}
+
+void select_sort(int *array)
+{
+    int i, j, key;
+    for (i = 1; i < 3; i++) {
+        key = array[i];
+        j = i - 1;
+        while (j >= 0 && array[j] > key) {
+            array[j + 1] = array[j];
+            j--;
+        }
+        array[j + 1] = key;
+    }
+}
+
+void select_sort_list(node_t *list)
+{
+    node_t *i, *j;
+    int tmp;
+    for (i = list; i != NULL; i = i->next) {
+        for (j = i->next; j != NULL; j = j->next) {
+            if (i->value > j->value) {
+                tmp = i->value;
+                i->value = j->value;
+                j->value = tmp;
+            }
+        }
+    }
+}
+
+void rand_pivot(node_t *list)
+{
+   if (!list)
+       return;
+
+   int rand_index = rand() % list_length(&list);
+
+   node_t *iter = list;
+   while (iter && iter->next) {
+       if (rand_index == 0) {
+            break;
+       }
+       iter = iter->next;
+       rand_index--;
+   }
+   swap_node(list, iter);
+}
+
+void delete_remain(int *arr, int n)
+{
+    int value = arr[0], tmp;
+    for (int i = 1; i < n; i++) {
+        tmp = arr[i];
+        arr[i] -= value;
+        value += tmp;
+    }
+}
+
+void rand_threeMedian_pivot(node_t *list)
+{
+    if (!list)
+        return;
+
+    int rand_index[3] = {0};
+    int len = list_length(&list), i;
+    for (i = 0; i < 3; i++) {
+        rand_index[i] = rand() % len;
+    }
+    select_sort(rand_index);
+    delete_remain(rand_index, 3);
+
+    node_t *iter = list, *tmp = NULL;
+    i = 0;
+    while (iter && iter->next) {
+        if (rand_index[i] <= 0) {
+           node_t *new_node = (node_t*) malloc(sizeof(*new_node));
+           new_node->value = iter->value;
+           list_add(&tmp, new_node);
+           i += 1;
+           if (i >= 3) {
+               break;
+           }
+        }
+        iter = iter->next;
+        rand_index[i]--;
+    }
+    
+    select_sort_list(tmp);
+    node_t *rand_node = tmp;
+    swap_node(list, rand_node);
+}
+
 void quick_sort(node_t **list)
 {
     int n = list_length(list);
@@ -100,6 +201,7 @@ void quick_sort(node_t **list)
     while (i >= 0) {
         node_t *L = begin[i], *R = end[i];
         if (L != R) {
+            rand_threeMedian_pivot(L);
             node_t *pivot = L;
             value = pivot->value;
             node_t *p = pivot->next;
@@ -133,7 +235,7 @@ int main(int argc, char **argv)
 {
     node_t *list = NULL;
 
-    size_t count = 100000;
+    size_t count = 10000;
 
     int *test_arr = malloc(sizeof(int) * count);
 
@@ -143,6 +245,9 @@ int main(int argc, char **argv)
 
     while (count--)
         list = list_construct(list, test_arr[count]);
+
+    select_sort_list(list);
+    assert(list_is_ordered(list));
 
     quick_sort(&list);
     assert(list_is_ordered(list));
