@@ -182,7 +182,7 @@ void rand_threeMedian_pivot(node_t *list)
     }
     
     select_sort_list(tmp);
-    node_t *rand_node = tmp;
+    node_t *rand_node = tmp->next;
     swap_node(list, rand_node);
 }
 
@@ -201,7 +201,8 @@ void quick_sort(node_t **list)
     while (i >= 0) {
         node_t *L = begin[i], *R = end[i];
         if (L != R) {
-            rand_threeMedian_pivot(L);
+            // rand_threeMedian_pivot(L);
+            rand_pivot(L);
             node_t *pivot = L;
             value = pivot->value;
             node_t *p = pivot->next;
@@ -235,7 +236,7 @@ int main(int argc, char **argv)
 {
     node_t *list = NULL;
 
-    size_t count = 10000;
+    size_t count = 100000;
 
     int *test_arr = malloc(sizeof(int) * count);
 
@@ -246,8 +247,8 @@ int main(int argc, char **argv)
     while (count--)
         list = list_construct(list, test_arr[count]);
 
-    select_sort_list(list);
-    assert(list_is_ordered(list));
+    // select_sort_list(list);
+    // assert(list_is_ordered(list));
 
     quick_sort(&list);
     assert(list_is_ordered(list));
