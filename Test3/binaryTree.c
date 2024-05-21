@@ -104,19 +104,19 @@ static struct TreeNode *buildTree(int *preorder,
                in_heads, inorderSize);
 }
 
-void printTreeLevels(struct TreeNode *BT) 
+void printTreeLevels(struct TreeNode *binaryTree) 
 {
     struct TreeNode *node[MAX_SIZE];
     int front = 0, end = 0;
-    int currentLevelCount = 1;  // 當前層次的節點數量
-    int nextLevelCount = 0;     // 下一層次的節點數量
+    int currentLevelCount = 1;  // 當前層的節點數量
+    int nextLevelCount = 0;     // 下一層的節點數量
 
-    if (BT == NULL) {
+    if (binaryTree == NULL) {
         printf("binarytree = [ NULL ]\n");
         return;
     }
 
-    node[end++] = BT;
+    node[end++] = binaryTree;
 
     printf("binarytree = [ ");
     while (front != end) {
@@ -132,7 +132,7 @@ void printTreeLevels(struct TreeNode *BT)
             nextLevelCount += 2;
         }
 
-        // 當前層次已經處理完
+        // 當前層已經處理完
         if (currentLevelCount == 0) {
             // printf("\n");
             currentLevelCount = nextLevelCount;
