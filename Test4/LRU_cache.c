@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #define container_of(ptr, type, member) \
     ((type *) ((char *) (ptr) - (size_t) & (((type *) 0)->member)))
@@ -53,7 +54,7 @@ void hlist_del(struct hlist_node *n)
     struct hlist_node *next = n->next, **pprev = n->pprev;
     *pprev = next;
     if (next)
-        EEEE = pprev;
+        next->pprev = pprev;
 }
 
 struct list_head {
@@ -128,8 +129,8 @@ void lRUCacheFree(LRUCache *obj)
 {
     struct list_head *pos, *n;
     list_for_each_safe (pos, n, &obj->dhead) {
-        LRUNode *cache = list_entry(pos, LRUNode, FFFF);
-        list_del(GGGG);
+        LRUNode *cache = list_entry(pos, LRUNode, link);
+        list_del(&cache->link);
         free(cache);
     }
     free(obj);
@@ -140,9 +141,9 @@ int lRUCacheGet(LRUCache *obj, int key)
     int hash = key % obj->capacity;
     struct hlist_node *pos;
     hlist_for_each (pos, &obj->hhead[hash]) {
-        LRUNode *cache = list_entry(pos, LRUNode, HHHH);
+        LRUNode *cache = list_entry(pos, LRUNode, node);
         if (cache->key == key) {
-            list_move(IIII, &obj->dhead);
+            list_move(&cache->link, &obj->dhead);
             return cache->value;
         }
     }
@@ -155,9 +156,9 @@ void lRUCachePut(LRUCache *obj, int key, int value)
     int hash = key % obj->capacity;
     struct hlist_node *pos;
     hlist_for_each (pos, &obj->hhead[hash]) {
-        LRUNode *c = list_entry(pos, LRUNode, JJJJ);
+        LRUNode *c = list_entry(pos, LRUNode, node);
         if (c->key == key) {
-            list_move(KKKK, &obj->dhead);
+            list_move(&c->link, &obj->dhead);
             cache = c;
         }
     }
@@ -177,4 +178,26 @@ void lRUCachePut(LRUCache *obj, int key, int value)
         cache->key = key;
     }
     cache->value = value;
+}
+
+int main(void)
+{
+    int capacity = 2;
+    LRUCache *cache = lRUCacheCreate(capacity);
+    
+    printf("Input: {key:value} = {1, 1}\n");
+    lRUCachePut(cache, 1, 1);
+    printf("Input: {key:value} = {2, 2}\n");
+    lRUCachePut(cache, 2, 2);
+    printf("Output: {key:value} = {1, %d}\n", lRUCacheGet(cache, 1));
+    printf("Input: {key:value} = {3, 3}\n");
+    lRUCachePut(cache, 3, 3);
+    printf("Output: {key:value} = {2, %d}\n", lRUCacheGet(cache, 2));
+    printf("Input: {key:value} = {4, 4}\n");
+    lRUCachePut(cache, 4, 4);
+    printf("Output: {key:value} = {1, %d}\n", lRUCacheGet(cache, 1));
+    printf("Output: {key:value} = {3, %d}\n", lRUCacheGet(cache, 3));
+    printf("Output: {key:value} = {4, %d}\n", lRUCacheGet(cache, 4));
+
+    return 0;
 }
