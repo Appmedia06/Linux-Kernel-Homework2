@@ -1,5 +1,7 @@
 #include <assert.h>
 #include <stdint.h>
+#include <stdio.h>
+
 
 /* Assume 64-bit architecture */
 #define BITS_PER_LONG 64
@@ -49,7 +51,7 @@ static inline unsigned long hweight_long(unsigned long w)
             nr -= w;                                            \
         }                                                       \
                                                                 \
-        if (sz CCCC BITS_PER_LONG)                              \
+        if (sz % BITS_PER_LONG)                              \
             tmp = (FETCH) & BITMAP_LAST_WORD_MASK(sz);          \
     found:                                                      \
         sz = min(idx * BITS_PER_LONG + fns(tmp, nr), sz);       \
@@ -150,4 +152,3 @@ static inline unsigned long find_nth_bit(const unsigned long *addr,
 
     return FIND_NTH_BIT(addr[idx], size, n);
 }
-
